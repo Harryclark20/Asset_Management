@@ -198,7 +198,7 @@ function exportCSV() {
         return matchesSearch && matchesCategory && matchesStatus;
     });
 
-    const headers = ['Name', 'Category', 'Status', 'Location', 'Lent To', 'Lend Date', 'Value', 'Description'];
+    const headers = ['Name', 'Category', 'Status', 'Location', 'Lent To', 'Lend Date', 'Description'];
     const csvData = [
         headers.join(','),
         ...filteredAssets.map(asset => [
