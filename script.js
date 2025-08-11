@@ -2,18 +2,50 @@ let assets = [];
 let editingAssetId = null;
 let currentDetailAsset = null;
 
+// Initialize with sample data
+function initializeData() {
+    assets = [
+        {
+            id: 1,
+            name: 'Epson Projector EB-X41',
+            category: 'Projector',
+            status: 'Available',
+            location: 'Conference Room 1',
+            lentTo: '',
+            lendDate: '',
+            value: 450,
+            description: 'Portable projector for meetings'
+        },
+        {
+            id: 2,
+            name: 'Shure Microphone SM58',
+            category: 'Microphone',
+            status: 'Lent Out',
+            location: 'Studio A',
+            lentTo: 'Alice Johnson',
+            lendDate: '2025-08-01',
+            value: 99,
+            description: 'Industry standard vocal microphone'
+        }
+    ];
+    updateDisplay();
+}
 
 function updateStats() {
     const totalAssets = assets.length;
     const lentOutAssets = assets.filter(a => a.status === 'Lent Out').length;
+    const totalValue = assets.reduce((sum, a) => sum + (a.value || 0), 0);
 
     document.getElementById('totalAssets').textContent = totalAssets;
     document.getElementById('activeAssets').textContent = lentOutAssets;
-  
+    document.getElementById('totalValue').textContent = '$' + totalValue.toLocaleString();
 }
 
 function renderAssetsTable() {
     const tbody = document.getElementById('assetsTableBody');
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const categoryFilter = document.getElementById('categoryFilter').value;
+    const statusFilter = document.getElementById('statusFilter').value;
 
     const filteredAssets = assets.filter(asset => {
         const matchesSearch = asset.name.toLowerCase().includes(searchTerm) ||
@@ -110,6 +142,8 @@ function viewAsset(id) {
             <div><strong>Location:</strong> ${asset.location || 'N/A'}</div>
             <div><strong>Lent To:</strong> ${asset.lentTo || 'Unassigned'}</div>
             <div><strong>Lend Date:</strong> ${asset.lendDate || 'N/A'}</div>
+            <div><strong>Value:</strong> $${(asset.value || 0).toLocaleString()}</div>
+        </div>
         ${asset.description ? `<div style="margin-top: 1rem;"><strong>Description:</strong><br><div style="background: #f9fafb; padding: 1rem; border-radius: 8px; margin-top: 0.5rem;">${asset.description}</div></div>` : ''}
     `;
 
@@ -198,7 +232,7 @@ function exportCSV() {
         return matchesSearch && matchesCategory && matchesStatus;
     });
 
-    const headers = ['Name', 'Category', 'Status', 'Location', 'Lent To', 'Lend Date', 'Description'];
+    const headers = ['Name', 'Category', 'Status', 'Location', 'Lent To', 'Lend Date', 'Value', 'Description'];
     const csvData = [
         headers.join(','),
         ...filteredAssets.map(asset => [
