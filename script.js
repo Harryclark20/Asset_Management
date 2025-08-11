@@ -2,34 +2,6 @@ let assets = [];
 let editingAssetId = null;
 let currentDetailAsset = null;
 
-// Initialize with sample data
-function initializeData() {
-    assets = [
-        {
-            id: 1,
-            name: 'Epson Projector EB-X41',
-            category: 'Projector',
-            status: 'Available',
-            location: 'Conference Room 1',
-            lentTo: '',
-            lendDate: '',
-            value: 450,
-            description: 'Portable projector for meetings'
-        },
-        {
-            id: 2,
-            name: 'Shure Microphone SM58',
-            category: 'Microphone',
-            status: 'Lent Out',
-            location: 'Studio A',
-            lentTo: 'Alice Johnson',
-            lendDate: '2025-08-01',
-            value: 99,
-            description: 'Industry standard vocal microphone'
-        }
-    ];
-    updateDisplay();
-}
 
 function updateStats() {
     const totalAssets = assets.length;
