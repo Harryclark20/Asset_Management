@@ -3,33 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Management System</title>
+    <title>IT Asset Management System</title>
     <link rel="stylesheet" href="styles.css">
     <script src="script.js" defer></script>
-    </head>
+</head>
 <body>
     <div class="container">
         <!-- Header -->
         <div class="header">
             <div class="header-top">
-                <h1>Asset Management System</h1>
+                <h1>IT Asset Management System</h1>
                 <button class="btn btn-primary" onclick="openAddModal()">
-                    ➕ Add Asset
+                    ➕ Add IT Asset
                 </button>
             </div>
             
             <div class="stats">
                 <div class="stat-card stat-blue">
-                    <div class="stat-icon icon-blue">📦</div>
+                    <div class="stat-icon icon-blue">🎥</div>
                     <div>
-                        <div class="stat-label">Total Assets</div>
+                        <div class="stat-label">Total IT Assets</div>
                         <div class="stat-value" id="totalAssets">0</div>
                     </div>
                 </div>
                 <div class="stat-card stat-green">
-                    <div class="stat-icon icon-green">✅</div>
+                    <div class="stat-icon icon-green">🔄</div>
                     <div>
-                        <div class="stat-label">Active Assets</div>
+                        <div class="stat-label">Currently Lent Out</div>
                         <div class="stat-value" id="activeAssets">0</div>
                     </div>
                 </div>
@@ -43,29 +43,26 @@
             </div>
         </div>
 
-        <!-- Filters -->
         <div class="filters">
             <div class="filter-grid">
                 <div class="input-group">
                     <span class="search-icon">🔍</span>
-                    <input type="text" id="searchInput" class="search-input" placeholder="Search assets..." oninput="filterAssets()">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search IT assets..." oninput="filterAssets()">
                 </div>
                 <select id="categoryFilter" onchange="filterAssets()">
                     <option value="">All Categories</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Furniture">Furniture</option>
-                    <option value="Vehicles">Vehicles</option>
-                    <option value="Equipment">Equipment</option>
-                    <option value="Software">Software</option>
-                    <option value="Real Estate">Real Estate</option>
+                    <option value="Projector">Projector</option>
+                    <option value="Speaker">Speaker</option>
+                    <option value="Camera">Camera</option>
+                    <option value="Microphone">Microphone</option>
+                    <option value="Laptop">Laptop</option>
                     <option value="Other">Other</option>
                 </select>
                 <select id="statusFilter" onchange="filterAssets()">
                     <option value="">All Statuses</option>
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
+                    <option value="Available">Available</option>
+                    <option value="Lent Out">Lent Out</option>
                     <option value="Under Maintenance">Under Maintenance</option>
-                    <option value="Disposed">Disposed</option>
                     <option value="Lost/Stolen">Lost/Stolen</option>
                 </select>
                 <button class="btn btn-secondary" onclick="exportCSV()">
@@ -83,7 +80,8 @@
                         <th>Category</th>
                         <th>Status</th>
                         <th>Location</th>
-                        <th>Assigned To</th>
+                        <th>Lent To</th>
+                        <th>Lend Date</th>
                         <th>Value</th>
                         <th>Actions</th>
                     </tr>
@@ -98,7 +96,7 @@
     <div id="assetModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modalTitle">Add New Asset</h2>
+                <h2 id="modalTitle">Add New IT Asset</h2>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             
@@ -111,52 +109,34 @@
                     <label for="assetCategory">Category *</label>
                     <select id="assetCategory" required>
                         <option value="">Select Category</option>
-                        <option value="Electronics">Electronics</option>
-                        <option value="Furniture">Furniture</option>
-                        <option value="Vehicles">Vehicles</option>
-                        <option value="Equipment">Equipment</option>
-                        <option value="Software">Software</option>
-                        <option value="Real Estate">Real Estate</option>
+                        <option value="Projector">Projector</option>
+                        <option value="Speaker">Speaker</option>
+                        <option value="Camera">Camera</option>
+                        <option value="Microphone">Microphone</option>
+                        <option value="Laptop">Laptop</option>
                         <option value="Other">Other</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="assetStatus">Status</label>
                     <select id="assetStatus">
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Available">Available</option>
+                        <option value="Lent Out">Lent Out</option>
                         <option value="Under Maintenance">Under Maintenance</option>
-                        <option value="Disposed">Disposed</option>
                         <option value="Lost/Stolen">Lost/Stolen</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="serialNumber">Serial Number</label>
-                    <input type="text" id="serialNumber">
-                </div>
-                <div class="form-group">
-                    <label for="purchaseDate">Purchase Date</label>
-                    <input type="date" id="purchaseDate">
-                </div>
-                <div class="form-group">
-                    <label for="purchasePrice">Purchase Price</label>
-                    <input type="number" id="purchasePrice" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label for="currentValue">Current Value</label>
-                    <input type="number" id="currentValue" step="0.01">
+                    <label for="lendDate">Lend Date</label>
+                    <input type="date" id="lendDate">
                 </div>
                 <div class="form-group">
                     <label for="location">Location</label>
                     <input type="text" id="location">
                 </div>
                 <div class="form-group">
-                    <label for="assignedTo">Assigned To</label>
-                    <input type="text" id="assignedTo">
-                </div>
-                <div class="form-group">
-                    <label for="warrantyExpiry">Warranty Expiry</label>
-                    <input type="date" id="warrantyExpiry">
+                    <label for="lentTo">Lent To</label>
+                    <input type="text" id="lentTo">
                 </div>
             </div>
             
@@ -176,15 +156,10 @@
     <div id="detailModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Asset Details</h2>
+                <h2>IT Asset Details</h2>
                 <button class="close-btn" onclick="closeDetailModal()">&times;</button>
             </div>
             <div id="assetDetails"></div>
             <div class="modal-actions">
                 <button class="btn btn-primary" onclick="editFromDetail()">Edit Asset</button>
                 <button class="btn btn-ghost" onclick="closeDetailModal()">Close</button>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
