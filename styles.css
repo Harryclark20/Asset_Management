@@ -390,11 +390,14 @@
     min-height: 40px;
     font-size: 1.25rem;
 }
-@media (max-width: 700px) {
-    .table-container {
-        overflow-x: auto;
-    }
-    table {
-        min-width: 600px;
-    }
-}
+        .action-btn {
+            min-width: 32px;
+            min-height: 32px;
+            font-size: 1rem;
+        }
+        .btn-danger {
+            min-width: 32px;
+            min-height: 32px;
+            font-size: 1rem;
+        }
+    
