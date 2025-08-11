@@ -7,31 +7,25 @@ function initializeData() {
     assets = [
         {
             id: 1,
-            name: 'Dell Laptop XPS 13',
-            category: 'Electronics',
-            status: 'Active',
-            purchaseDate: '2023-06-15',
-            purchasePrice: 1299,
-            currentValue: 950,
-            location: 'Office Floor 2',
-            assignedTo: 'John Smith',
-            serialNumber: 'DL12345',
-            description: 'High-performance laptop for development work',
-            warrantyExpiry: '2026-06-15'
+            name: 'Epson Projector EB-X41',
+            category: 'Projector',
+            status: 'Available',
+            location: 'Conference Room 1',
+            lentTo: '',
+            lendDate: '',
+            value: 450,
+            description: 'Portable projector for meetings'
         },
         {
             id: 2,
-            name: 'Conference Table',
-            category: 'Furniture',
-            status: 'Active',
-            purchaseDate: '2022-03-10',
-            purchasePrice: 800,
-            currentValue: 600,
-            location: 'Meeting Room A',
-            assignedTo: '',
-            serialNumber: 'CT001',
-            description: '12-person conference table with cable management',
-            warrantyExpiry: '2025-03-10'
+            name: 'Shure Microphone SM58',
+            category: 'Microphone',
+            status: 'Lent Out',
+            location: 'Studio A',
+            lentTo: 'Alice Johnson',
+            lendDate: '2025-08-01',
+            value: 99,
+            description: 'Industry standard vocal microphone'
         }
     ];
     updateDisplay();
@@ -39,11 +33,11 @@ function initializeData() {
 
 function updateStats() {
     const totalAssets = assets.length;
-    const activeAssets = assets.filter(a => a.status === 'Active').length;
-    const totalValue = assets.reduce((sum, a) => sum + (a.currentValue || 0), 0);
+    const lentOutAssets = assets.filter(a => a.status === 'Lent Out').length;
+    const totalValue = assets.reduce((sum, a) => sum + (a.value || 0), 0);
 
     document.getElementById('totalAssets').textContent = totalAssets;
-    document.getElementById('activeAssets').textContent = activeAssets;
+    document.getElementById('activeAssets').textContent = lentOutAssets;
     document.getElementById('totalValue').textContent = '$' + totalValue.toLocaleString();
 }
 
@@ -55,8 +49,8 @@ function renderAssetsTable() {
 
     const filteredAssets = assets.filter(asset => {
         const matchesSearch = asset.name.toLowerCase().includes(searchTerm) ||
-                            asset.serialNumber.toLowerCase().includes(searchTerm) ||
-                            asset.assignedTo.toLowerCase().includes(searchTerm);
+            (asset.lentTo && asset.lentTo.toLowerCase().includes(searchTerm)) ||
+            (asset.location && asset.location.toLowerCase().includes(searchTerm));
         const matchesCategory = !categoryFilter || asset.category === categoryFilter;
         const matchesStatus = !statusFilter || asset.status === statusFilter;
         return matchesSearch && matchesCategory && matchesStatus;
@@ -67,7 +61,6 @@ function renderAssetsTable() {
             <td>
                 <div>
                     <div style="font-weight: 500;">${asset.name}</div>
-                    <div style="font-size: 0.875rem; color: #6b7280;">S/N: ${asset.serialNumber}</div>
                 </div>
             </td>
             <td>
@@ -77,8 +70,9 @@ function renderAssetsTable() {
                 <span class="badge ${getStatusBadgeClass(asset.status)}">${asset.status}</span>
             </td>
             <td>${asset.location || 'N/A'}</td>
-            <td>${asset.assignedTo || 'Unassigned'}</td>
-            <td>$${(asset.currentValue || 0).toLocaleString()}</td>
+            <td>${asset.lentTo || 'Unassigned'}</td>
+            <td>${asset.lendDate || 'N/A'}</td>
+            <td>$${(asset.value || 0).toLocaleString()}</td>
             <td>
                 <div class="actions">
                     <button class="action-btn" onclick="viewAsset(${asset.id})" title="View">👁️</button>
@@ -92,9 +86,11 @@ function renderAssetsTable() {
 
 function getStatusBadgeClass(status) {
     switch(status) {
-        case 'Active': return 'badge-green';
-        case 'Under Maintenance': return 'badge-yellow';
-        default: return 'badge-red';
+        case 'Available': return 'badge-green';
+        case 'Lent Out': return 'badge-yellow';
+        case 'Under Maintenance': return 'badge-purple';
+        case 'Lost/Stolen': return 'badge-red';
+        default: return 'badge-gray';
     }
 }
 
@@ -109,7 +105,7 @@ function filterAssets() {
 
 function openAddModal() {
     editingAssetId = null;
-    document.getElementById('modalTitle').textContent = 'Add New Asset';
+    document.getElementById('modalTitle').textContent = 'Add New IT Asset';
     clearForm();
     document.getElementById('assetModal').classList.add('active');
 }
@@ -119,20 +115,16 @@ function editAsset(id) {
     if (!asset) return;
 
     editingAssetId = id;
-    document.getElementById('modalTitle').textContent = 'Edit Asset';
-    
-    // Populate form
+    document.getElementById('modalTitle').textContent = 'Edit IT Asset';
+
     document.getElementById('assetName').value = asset.name || '';
     document.getElementById('assetCategory').value = asset.category || '';
-    document.getElementById('assetStatus').value = asset.status || '';
-    document.getElementById('serialNumber').value = asset.serialNumber || '';
-    document.getElementById('purchaseDate').value = asset.purchaseDate || '';
-    document.getElementById('purchasePrice').value = asset.purchasePrice || '';
-    document.getElementById('currentValue').value = asset.currentValue || '';
+    document.getElementById('assetStatus').value = asset.status || 'Available';
     document.getElementById('location').value = asset.location || '';
-    document.getElementById('assignedTo').value = asset.assignedTo || '';
-    document.getElementById('warrantyExpiry').value = asset.warrantyExpiry || '';
+    document.getElementById('lentTo').value = asset.lentTo || '';
+    document.getElementById('lendDate').value = asset.lendDate || '';
     document.getElementById('description').value = asset.description || '';
+    document.getElementById('value').value = asset.value || '';
 
     document.getElementById('assetModal').classList.add('active');
 }
@@ -145,19 +137,16 @@ function viewAsset(id) {
     const detailsHTML = `
         <div class="form-grid">
             <div><strong>Asset Name:</strong> ${asset.name}</div>
-            <div><strong>Serial Number:</strong> ${asset.serialNumber || 'N/A'}</div>
             <div><strong>Category:</strong> <span class="badge badge-blue">${asset.category}</span></div>
             <div><strong>Status:</strong> <span class="badge ${getStatusBadgeClass(asset.status)}">${asset.status}</span></div>
             <div><strong>Location:</strong> ${asset.location || 'N/A'}</div>
-            <div><strong>Assigned To:</strong> ${asset.assignedTo || 'Unassigned'}</div>
-            <div><strong>Purchase Date:</strong> ${asset.purchaseDate || 'N/A'}</div>
-            <div><strong>Purchase Price:</strong> $${(asset.purchasePrice || 0).toLocaleString()}</div>
-            <div><strong>Current Value:</strong> $${(asset.currentValue || 0).toLocaleString()}</div>
-            <div><strong>Warranty Expiry:</strong> ${asset.warrantyExpiry || 'N/A'}</div>
+            <div><strong>Lent To:</strong> ${asset.lentTo || 'Unassigned'}</div>
+            <div><strong>Lend Date:</strong> ${asset.lendDate || 'N/A'}</div>
+            <div><strong>Value:</strong> $${(asset.value || 0).toLocaleString()}</div>
         </div>
         ${asset.description ? `<div style="margin-top: 1rem;"><strong>Description:</strong><br><div style="background: #f9fafb; padding: 1rem; border-radius: 8px; margin-top: 0.5rem;">${asset.description}</div></div>` : ''}
     `;
-    
+
     document.getElementById('assetDetails').innerHTML = detailsHTML;
     document.getElementById('detailModal').classList.add('active');
 }
@@ -177,7 +166,7 @@ function deleteAsset(id) {
 function saveAsset() {
     const name = document.getElementById('assetName').value;
     const category = document.getElementById('assetCategory').value;
-    
+
     if (!name || !category) {
         alert('Please fill in required fields (Asset Name and Category)');
         return;
@@ -187,24 +176,19 @@ function saveAsset() {
         name,
         category,
         status: document.getElementById('assetStatus').value,
-        serialNumber: document.getElementById('serialNumber').value,
-        purchaseDate: document.getElementById('purchaseDate').value,
-        purchasePrice: parseFloat(document.getElementById('purchasePrice').value) || 0,
-        currentValue: parseFloat(document.getElementById('currentValue').value) || 0,
         location: document.getElementById('location').value,
-        assignedTo: document.getElementById('assignedTo').value,
-        warrantyExpiry: document.getElementById('warrantyExpiry').value,
-        description: document.getElementById('description').value
+        lentTo: document.getElementById('lentTo').value,
+        lendDate: document.getElementById('lendDate').value,
+        description: document.getElementById('description').value,
+        value: parseFloat(document.getElementById('value')?.value) || 0
     };
 
     if (editingAssetId) {
-        // Update existing asset
         const index = assets.findIndex(a => a.id === editingAssetId);
         if (index !== -1) {
             assets[index] = { ...assetData, id: editingAssetId };
         }
     } else {
-        // Add new asset
         assetData.id = Date.now();
         assets.push(assetData);
     }
@@ -216,15 +200,14 @@ function saveAsset() {
 function clearForm() {
     document.getElementById('assetName').value = '';
     document.getElementById('assetCategory').value = '';
-    document.getElementById('assetStatus').value = 'Active';
-    document.getElementById('serialNumber').value = '';
-    document.getElementById('purchaseDate').value = '';
-    document.getElementById('purchasePrice').value = '';
-    document.getElementById('currentValue').value = '';
+    document.getElementById('assetStatus').value = 'Available';
     document.getElementById('location').value = '';
-    document.getElementById('assignedTo').value = '';
-    document.getElementById('warrantyExpiry').value = '';
+    document.getElementById('lentTo').value = '';
+    document.getElementById('lendDate').value = '';
     document.getElementById('description').value = '';
+    if (document.getElementById('value')) {
+        document.getElementById('value').value = '';
+    }
 }
 
 function closeModal() {
@@ -242,26 +225,25 @@ function exportCSV() {
 
     const filteredAssets = assets.filter(asset => {
         const matchesSearch = asset.name.toLowerCase().includes(searchTerm) ||
-                            asset.serialNumber.toLowerCase().includes(searchTerm) ||
-                            asset.assignedTo.toLowerCase().includes(searchTerm);
+            (asset.lentTo && asset.lentTo.toLowerCase().includes(searchTerm)) ||
+            (asset.location && asset.location.toLowerCase().includes(searchTerm));
         const matchesCategory = !categoryFilter || asset.category === categoryFilter;
         const matchesStatus = !statusFilter || asset.status === statusFilter;
         return matchesSearch && matchesCategory && matchesStatus;
     });
 
-    const headers = ['Name', 'Category', 'Status', 'Purchase Date', 'Purchase Price', 'Current Value', 'Location', 'Assigned To', 'Serial Number'];
+    const headers = ['Name', 'Category', 'Status', 'Location', 'Lent To', 'Lend Date', 'Value', 'Description'];
     const csvData = [
         headers.join(','),
         ...filteredAssets.map(asset => [
             asset.name,
             asset.category,
             asset.status,
-            asset.purchaseDate,
-            asset.purchasePrice,
-            asset.currentValue,
             asset.location,
-            asset.assignedTo,
-            asset.serialNumber
+            asset.lentTo,
+            asset.lendDate,
+            asset.value,
+            `"${asset.description.replace(/"/g, '""')}"`
         ].join(','))
     ].join('\n');
 
@@ -280,7 +262,7 @@ function exportCSV() {
 document.addEventListener('click', function(e) {
     const modal = document.getElementById('assetModal');
     const detailModal = document.getElementById('detailModal');
-    
+
     if (e.target === modal) {
         closeModal();
     }
@@ -289,4 +271,5 @@ document.addEventListener('click', function(e) {
     }
 });
 
-//
+// Initialize data on page load
+window.addEventListener('DOMContentLoaded', initializeData);
